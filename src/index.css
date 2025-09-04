@@ -18,3 +18,27 @@ body { @apply bg-bg-dark overflow-hidden; }
   background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.5), rgba(255,255,255,0) 70%);
   filter: blur(4px);
 }
+
+/* Glassmorphism helpers */
+.glass {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.glass-strong {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015));
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Radial rays background used on the main game panel */
+.rays-bg {
+  background-image: radial-gradient(circle at 15% 60%, rgba(255,255,255,0.02), rgba(0,0,0,0) 30%), linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0));
+}
+
+.top-accent {
+  background: linear-gradient(90deg,#b36b00,#ffb74d);
+}

@@ -29,13 +29,13 @@ export default function BetPanel({ panelId }) {
   const handleCashout = () => cashOut(panelId);
 
   return (
-    <div className="bet-gradient rounded-lg p-4 border border-gray-800 flex flex-col gap-4">
+  <div className="glass rounded-lg p-4 border border-gray-800 flex flex-col gap-4">
       <div className="flex justify-between text-xs text-gray-400 uppercase tracking-wider">
         <span>Bet {panelId}</span>
         {status && <span className={clsx('font-semibold', status === 'CASHED' && 'text-success', status === 'LOST' && 'text-accent')}>{status}</span>}
       </div>
       <div>
-        <div className="flex items-center bg-panel-alt rounded px-3 py-2 gap-2 border border-gray-700">
+  <div className="flex items-center glass rounded px-3 py-2 gap-2 border border-gray-700">
           <input type="number" className="bg-transparent flex-1 outline-none" min={0.1} step={0.1} value={amount} onChange={e => setAmount(parseFloat(e.target.value)||0)} />
           <span className="text-xs text-gray-500">USD</span>
         </div>
@@ -53,8 +53,8 @@ export default function BetPanel({ panelId }) {
         </div>
       </div>
       <div>
-        {canPlace && <button onClick={handleBet} className={clsx('w-full h-16 text-xl rounded-md font-bold btn-primary', !canPlace && 'btn-disabled')}>BET {amount.toFixed(2)}</button>}
-        {canCashout && <button onClick={handleCashout} className="w-full h-16 text-xl rounded-md font-bold bg-success hover:opacity-90 text-white">CASHOUT { (amount * multiplier).toFixed(2) }</button>}
+  {canPlace && <button onClick={handleBet} className={clsx('w-full h-16 text-xl rounded-md font-bold bg-accent text-white hover:bg-accent-soft', !canPlace && 'btn-disabled')}>BET {amount.toFixed(2)}</button>}
+  {canCashout && <button onClick={handleCashout} className="w-full h-16 text-xl rounded-md font-bold bg-success hover:opacity-90 text-white">CASHOUT { (amount * multiplier).toFixed(2) }</button>}
         {status === 'CASHED' && <div className="w-full h-16 flex items-center justify-center text-success font-semibold text-lg">Won { (betForPanel.winnings).toFixed(2) }</div>}
         {status === 'LOST' && <div className="w-full h-16 flex items-center justify-center text-accent font-semibold text-lg">Lost { amount.toFixed(2) }</div>}
         {phase==='RUNNING' && !status && <div className="w-full h-16 flex items-center justify-center text-gray-500">Bet Locked</div>}

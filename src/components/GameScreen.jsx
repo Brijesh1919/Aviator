@@ -144,7 +144,7 @@ export default function GameScreen({ onBack }) {
               </svg>
               {/* Render plane absolute on top of svg - position converted from SVG coords to container via CSS translate handled in Plane */}
               <div style={{ position: 'absolute', width: viewW, height: viewH, bottom: 0, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}>
-                <Plane x={planePos.x} y={planePos.y} angle={planePos.angle} phase={phase} />
+                <Plane x={planePos.x} y={planePos.y} angle={planePos.angle} phase={phase} multiplier={multiplier} />
               </div>
             </div>
           </div>

@@ -7,7 +7,7 @@ const Icon = Menu || FallbackMenuIcon;
 
 export default function TopBar({ balance }) {
   return (
-    <div className="flex items-center justify-between px-4 h-14 bg-panel shadow-inner border-b border-gray-800">
+    <div className="flex items-center justify-between px-4 h-14 glass-strong border-b border-gray-800">
       <div className="flex items-center gap-3">
         <div className="text-accent font-bold text-xl tracking-wide">Aviator</div>
         <button className="text-xs bg-gray-700/40 px-2 py-1 rounded hover:bg-gray-600/50">How to play?</button>

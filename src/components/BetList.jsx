@@ -5,14 +5,14 @@ export default function BetList() {
   const { userBets, otherBets, phase, multiplier } = useGame();
   const all = [...userBets.map(b => ({ ...b, user: 'You' })), ...otherBets];
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col glass p-2 rounded-r">
       <div className="px-3 py-2 border-b border-gray-800 text-xs uppercase tracking-wider flex justify-between">
         <span>All Bets</span>
         <span className="text-gray-500 text-[10px]">{all.length}</span>
       </div>
       <div className="flex-1 overflow-y-auto scrollbar-thin text-sm">
         {all.map(b => (
-          <div key={b.id} className="px-3 py-1.5 flex items-center gap-2 border-b border-gray-900 hover:bg-panel-alt/40">
+          <div key={b.id} className="px-3 py-1.5 flex items-center gap-2 border-b border-gray-900 hover:backdrop-blur-sm hover:bg-white/2">
             <div className="flex-1 truncate">{b.user}</div>
             <div className="w-16 text-right">{b.amount.toFixed ? b.amount.toFixed(2) : b.amount}.00</div>
             <div className="w-16 text-right text-xs">
