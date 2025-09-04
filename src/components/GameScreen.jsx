@@ -5,7 +5,7 @@ import Plane from "./Plane.jsx";
 // Visual constants
 const RED = '#ff0033';
 
-export default function GameScreen() {
+export default function GameScreen({ onBack }) {
   const { phase, multiplier, countdown, crashPoint,
     growthRate, growthExponent,
     increaseGrowthRate, decreaseGrowthRate,
@@ -97,6 +97,10 @@ export default function GameScreen() {
 
   return (
     <div className="flex-1 bg-gradient-to-b from-panel to-panel-alt rounded-lg border border-gray-800 relative overflow-hidden flex items-center justify-center">
+      {/* Back to Dashboard */}
+      {onBack && (
+        <button onClick={onBack} className="absolute top-4 right-4 z-40 px-3 py-1 bg-panel-alt text-sm rounded-md border border-gray-700 hover:bg-gray-800">Back to Dashboard</button>
+      )}
       {/* Waiting Phase */}
       {phase === "WAITING" && (
         <div className="flex flex-col items-center gap-4">
