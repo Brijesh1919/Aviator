@@ -4,9 +4,9 @@ import planeSvg from "../assets/plane.svg";
 
 // Plane now receives explicit x,y coordinates (px) and angle (deg) computed by GameScreen
 export default function Plane({ x = 0, y = 0, angle = 0, phase, multiplier = 1 }) {
-  // Make plane visibly larger (approx 2x) and remove glow/blur
-  const W = 130;
-  const H = 72;
+  // Responsive plane size (use percent of container width via tailwind classes); fallback px used for motion calc
+  const W = 110; // visual size in px when container scales
+  const H = 60;
 
   // CSS filter to tint the SVG to red (#ff0033). If you prefer exact control, inline the SVG.
   const colorFilter = 'invert(17%) sepia(97%) saturate(600%) hue-rotate(-10deg) brightness(95%)';
@@ -165,11 +165,15 @@ export default function Plane({ x = 0, y = 0, angle = 0, phase, multiplier = 1 }
     // cleanup handled automatically when sources stop
   }, [phase]);
 
+  // Convert percent coords to CSS positioning inside the responsive overlay
+  const left = `${x}px`;
+  const top = `${y}px`;
+
   return (
     <motion.div
-      className="absolute pointer-events-none"
-      style={{ width: W, height: H, left: 0, top: 0, zIndex: 50, transformOrigin: 'center' }}
-      animate={{ x: x - W / 2, y: y - H / 2, rotate: angle }}
+      className="absolute pointer-events-none w-16 h-9 sm:w-28 sm:h-16"
+      style={{ left, top, zIndex: 50, transformOrigin: 'center', transform: 'translate(-50%, -50%)' }}
+      animate={{ rotate: angle }}
       transition={{ type: 'spring', stiffness: 90, damping: 24 }}
     >
       <img

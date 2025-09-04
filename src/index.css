@@ -4,7 +4,11 @@
 
 html, body, #root { height: 100%; }
 
-body { @apply bg-bg-dark overflow-hidden; }
+/* allow scrolling on small devices so panels are reachable */
+body { @apply bg-bg-dark; }
+@media (max-width: 768px) {
+  body { overflow-y: auto; }
+}
 
 .scrollbar-thin::-webkit-scrollbar { width: 6px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: #111; }

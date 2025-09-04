@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect } from "react";
 import { useGame } from "../context/GameContext.jsx";
 import Plane from "./Plane.jsx";
+import { useState, useRef } from 'react';
 
 // Visual constants
 const RED = '#ff0033';
@@ -25,7 +26,7 @@ export default function GameScreen({ onBack }) {
     return () => window.removeEventListener('keydown', handler);
   }, [increaseGrowthRate, decreaseGrowthRate, increaseGrowthExponent, decreaseGrowthExponent, increaseRoundSpeed]);
 
-  // Canvas dimensions (relative to container) - we'll use a fixed internal viewport for the path
+  // Canvas internal viewport used for math. Rendering will be responsive via an aspect-ratio box.
   const viewW = 900;
   const viewH = 300;
 
@@ -48,8 +49,8 @@ export default function GameScreen({ onBack }) {
   // Current progress along the path based on multiplier. We'll map 1x -> t=0, and cap t at 0.98 for display.
   const tForMultiplier = Math.min(0.98, Math.log(Math.max(1, multiplier)) / Math.log(Math.max(2, crashPoint.value || 2)) );
 
-  // Compute current plane coordinates and angle from path
-  const planePos = useMemo(() => {
+  // Compute current plane coordinates and angle from path (in internal viewport units)
+  const rawPlanePos = useMemo(() => {
     const idx = Math.floor(tForMultiplier * (pathPoints.length - 1));
     const p = pathPoints[idx] || pathPoints[0];
     const pNext = pathPoints[Math.min(idx + 3, pathPoints.length - 1)] || p;
@@ -58,6 +59,37 @@ export default function GameScreen({ onBack }) {
     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
     return { x: p.x, y: p.y, angle };
   }, [tForMultiplier, pathPoints]);
+
+  // refs so we can query the actual SVG path and map to screen coordinates
+  const svgBoxRef = useRef(null);
+  const svgRef = useRef(null);
+  const progressPathRef = useRef(null);
+  const [planePx, setPlanePx] = useState({ x: 0, y: 0, angle: 0 });
+
+  // map raw internal coords -> pixel coords whenever size or rawPlanePos changes
+  useEffect(() => {
+    const el = svgBoxRef.current;
+    if (!el) return;
+    const applyMapping = () => {
+      const rect = el.getBoundingClientRect();
+      const scaleX = rect.width / viewW;
+      const scaleY = rect.height / viewH;
+      const x = rawPlanePos.x * scaleX;
+      const y = rawPlanePos.y * scaleY;
+      setPlanePx({ x, y, angle: rawPlanePos.angle });
+    };
+    applyMapping();
+    let ro = null;
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(applyMapping);
+      ro.observe(el);
+    }
+    window.addEventListener('resize', applyMapping);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', applyMapping);
+    };
+  }, [rawPlanePos]);
 
   // Build SVG path string from points (move to baseline center then follow curve)
   const pathD = useMemo(() => {
@@ -122,8 +154,11 @@ export default function GameScreen({ onBack }) {
 
           {/* SVG container centered horizontally, anchored to bottom */}
           <div className="w-full flex-1 flex items-end justify-center z-10 pointer-events-none">
-            <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-              <svg viewBox={`0 0 ${viewW} ${viewH}`} width={viewW} height={viewH} preserveAspectRatio="xMidYMax meet">
+            {/* Responsive aspect-box: keeps svg scaled while math still uses internal viewport */}
+            <div style={{ position: 'relative', width: '100%', maxWidth: '1200px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '100%', maxWidth: '1000px' }}>
+                <div ref={svgBoxRef} style={{ position: 'relative', width: '100%', paddingBottom: `${(viewH / viewW) * 100}%` }}>
+                  <svg ref={svgRef} viewBox={`0 0 ${viewW} ${viewH}`} width="100%" height="100%" preserveAspectRatio="xMidYMax meet" style={{ position: 'absolute', left: 0, top: 0 }}>
               {/* Background grid or rays could go here if desired */}
 
               {/* (removed fixed background shadow path) */}
@@ -137,14 +172,16 @@ export default function GameScreen({ onBack }) {
               {progressPath && (
                 <>
                   <path d={progressPath} fill="none" stroke="#1b1d20" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" opacity={0.85} />
-                  <path d={progressPath} fill="none" stroke={RED} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+                  <path ref={progressPathRef} d={progressPath} fill="none" stroke={RED} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
                 </>
               )}
 
-              </svg>
-              {/* Render plane absolute on top of svg - position converted from SVG coords to container via CSS translate handled in Plane */}
-              <div style={{ position: 'absolute', width: viewW, height: viewH, bottom: 0, left: '50%', transform: 'translateX(-50%)', pointerEvents: 'none' }}>
-                <Plane x={planePos.x} y={planePos.y} angle={planePos.angle} phase={phase} multiplier={multiplier} />
+                  </svg>
+                  {/* Render plane absolute on top of svg - using percent coords so it scales on small screens */}
+                  <div style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                    <Plane x={planePx.x} y={planePx.y} angle={planePx.angle} phase={phase} multiplier={multiplier} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
