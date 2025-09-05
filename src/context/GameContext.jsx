@@ -28,6 +28,22 @@ export function GameProvider({ children }) {
   const [growthRate, setGrowthRate] = useState(DEFAULT_GROWTH_RATE);
   const [growthExponent, setGrowthExponent] = useState(DEFAULT_GROWTH_EXPONENT);
 
+  // Sound setting (persisted)
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      const raw = localStorage.getItem('soundEnabled');
+      return raw === null ? true : JSON.parse(raw);
+    } catch (e) { return true; }
+  });
+
+  const toggleSound = (val) => {
+    setSoundEnabled(s => {
+      const next = typeof val === 'boolean' ? val : !s;
+      try { localStorage.setItem('soundEnabled', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
+  };
+
   // Controls to adjust speed/rate during runtime
   const increaseGrowthRate = (delta = 0.05) => setGrowthRate(r => +(r + delta).toFixed(4));
   const decreaseGrowthRate = (delta = 0.05) => setGrowthRate(r => Math.max(0.01, +(r - delta).toFixed(4)));
@@ -200,6 +216,7 @@ export function GameProvider({ children }) {
   increaseGrowthRate, decreaseGrowthRate,
   increaseGrowthExponent, decreaseGrowthExponent,
   increaseRoundSpeed
+  , soundEnabled, toggleSound
     }}>
       {children}
     </GameContext.Provider>

@@ -69,8 +69,30 @@ export default function GameScreen({ onBack }) {
   // map raw internal coords -> pixel coords whenever size or rawPlanePos changes
   useEffect(() => {
     const el = svgBoxRef.current;
+    const svgEl = svgRef.current;
+    const pathEl = progressPathRef.current;
     if (!el) return;
     const applyMapping = () => {
+      try {
+        // Prefer direct conversion of internal svg coordinates to screen coordinates.
+        if (svgEl && typeof svgEl.createSVGPoint === 'function') {
+          const svgPoint = svgEl.createSVGPoint();
+          svgPoint.x = rawPlanePos.x;
+          svgPoint.y = rawPlanePos.y;
+          const screenCTM = svgEl.getScreenCTM();
+          if (screenCTM) {
+            const screenPt = svgPoint.matrixTransform(screenCTM);
+            const rect = el.getBoundingClientRect();
+            const x = screenPt.x - rect.left;
+            const y = screenPt.y - rect.top;
+            setPlanePx({ x, y, angle: rawPlanePos.angle });
+            return;
+          }
+        }
+      } catch (e) {
+        // fall back to scale mapping below
+      }
+      // fallback: simple scale mapping
       const rect = el.getBoundingClientRect();
       const scaleX = rect.width / viewW;
       const scaleY = rect.height / viewH;
@@ -89,7 +111,7 @@ export default function GameScreen({ onBack }) {
       if (ro) ro.disconnect();
       window.removeEventListener('resize', applyMapping);
     };
-  }, [rawPlanePos]);
+  }, [rawPlanePos, multiplier, crashPoint]);
 
   // Build SVG path string from points (move to baseline center then follow curve)
   const pathD = useMemo(() => {
